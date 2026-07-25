@@ -1,0 +1,6 @@
+{
+  "name": "autoteam-hub-strumenti",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Suite Autoteam - Hub Strumenti con motori di calcolo protetti lato server (Netlify Functions)"
+}
