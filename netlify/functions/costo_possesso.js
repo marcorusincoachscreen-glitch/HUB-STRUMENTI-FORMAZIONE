@@ -144,6 +144,19 @@ function calcolaForbiceA(inp) {
   const d = perYearRate('imprevisti', 'imprevistiTipo');
   const f = perYearRate('altro', 'altroTipo');
 
+  // Voci opzionali per Divario 2°: bollo, revisione, carburante, differenza interessi passivi-attivi
+  function perYearFlat(val, tipo, years) {
+    const raw = toNum(val || 0);
+    return years > 0 ? ('annuo' === (tipo || 'totale') ? raw : raw / years) : 0;
+  }
+  const bolloPerYear = perYearFlat(inp.bollo, inp.bolloTipo, o);
+  const revisioniPerYear = perYearFlat(inp.revisioni, inp.revisioniTipo, o);
+  const carburantePerYear = perYearFlat(inp.carburante, inp.carburanteTipo, o);
+  const finTot = franceseInteressiTot(toNum(inp.cifraFinanziata), toNum(inp.tassoFinanziamento), Math.max(0, toNum(inp.anniFinanziamento)));
+  const attTot = interessiAttiviComposti(toNum(inp.cifraInvestibile), toNum(inp.tassoAttivo), Math.max(0, toNum(inp.anniInvestimento)));
+  const diffInteressiPerYear = o > 0 ? (finTot.totalInterest - attTot.netto) / o : 0;
+  const onBollo = !!inp.includeBolloDiv2, onRevisioni = !!inp.includeRevisioneDiv2, onCarburante = !!inp.includeCarburanteDiv2, onInteressi = !!inp.includeInteressiDiv2;
+
   const g = depRatesForYearsFA(o);
   const v = Math.max(0, t - i);
   const A = Math.min(i, t);
@@ -156,7 +169,8 @@ function calcolaForbiceA(inp) {
     if (valAuto < A) valAuto = A;
     const listinoEquiv = t + e / o * (r - t);
     const isP1 = e <= 4;
-    E += (isP1 ? s.rp1 : s.rp2) + (isP1 ? c.rp1 : c.rp2) + (isP1 ? u.rp1 : u.rp2) + (isP1 ? p.rp1 : p.rp2) + (isP1 ? d.rp1 : d.rp2) + (isP1 ? f.rp1 : f.rp2);
+    E += (isP1 ? s.rp1 : s.rp2) + (isP1 ? c.rp1 : c.rp2) + (isP1 ? u.rp1 : u.rp2) + (isP1 ? p.rp1 : p.rp2) + (isP1 ? d.rp1 : d.rp2) + (isP1 ? f.rp1 : f.rp2)
+      + (onBollo ? bolloPerYear : 0) + (onRevisioni ? revisioniPerYear : 0) + (onCarburante ? carburantePerYear : 0) + (onInteressi ? diffInteressiPerYear : 0);
     const divario1 = listinoEquiv - valAuto;
     const divario2cum = E;
     const prezzoGest = t + divario1 + divario2cum;
