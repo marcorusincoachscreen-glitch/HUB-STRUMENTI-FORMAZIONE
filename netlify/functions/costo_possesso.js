@@ -154,7 +154,13 @@ function calcolaForbiceA(inp) {
   const carburantePerYear = perYearFlat(inp.carburante, inp.carburanteTipo, o);
   const finTot = franceseInteressiTot(toNum(inp.cifraFinanziata), toNum(inp.tassoFinanziamento), Math.max(0, toNum(inp.anniFinanziamento)));
   const attTot = interessiAttiviComposti(toNum(inp.cifraInvestibile), toNum(inp.tassoAttivo), Math.max(0, toNum(inp.anniInvestimento)));
-  const diffInteressiPerYear = o > 0 ? (finTot.totalInterest - attTot.netto) / o : 0;
+  // Stessa logica di calcolaCore (R/O): se c'è finanziamento, gli interessi attivi si sottraggono
+  // dai passivi; se NON c'è finanziamento, gli interessi attivi netti si sommano per intero
+  // (mancato guadagno). Senza questa distinzione, con Liquidità personale alimentata ma
+  // Finanziamento vuoto, la differenza risultava negativa e veniva sottratta al Divario 2°
+  // invece che sommata.
+  const isFinanziato = finTot.totalInterest > 0;
+  const diffInteressiPerYear = o > 0 ? (isFinanziato ? (finTot.totalInterest - attTot.netto) : attTot.netto) / o : 0;
   const onBollo = !!inp.includeBolloDiv2, onRevisioni = !!inp.includeRevisioneDiv2, onCarburante = !!inp.includeCarburanteDiv2, onInteressi = !!inp.includeInteressiDiv2;
 
   const g = depRatesForYearsFA(o);
