@@ -119,6 +119,16 @@ main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh}
 #toolFrame{width:100%; height:100%; border:0; display:none; background:var(--bg)}
 #homeView{height:100%; overflow-y:auto; padding:40px 44px 60px}
 .home-hero{max-width:760px; margin-bottom:36px}
+.quote-card{position:relative; display:flex; align-items:stretch; overflow:hidden; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:36px; box-shadow:var(--shadow-sm)}
+.quote-scene{width:260px; flex-shrink:0}
+.quote-scene svg{display:block; width:100%; height:100%}
+.quote-body{flex:1; padding:26px 30px; display:flex; flex-direction:column; justify-content:center; min-width:0}
+.quote-kicker{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:12px; display:flex; align-items:center; gap:8px}
+.quote-kicker .dot{width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); flex-shrink:0}
+.quote-text{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; color:var(--ink); line-height:1.42; margin:0}
+.quote-text::before{content:'\201C'}
+.quote-text::after{content:'\201D'}
+@media (max-width:720px){.quote-card{flex-direction:column} .quote-scene{width:100%; height:140px}}
 .home-hero .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:14px}
 .home-hero h1{font-size:clamp(24px,3vw,32px); color:var(--ink); max-width:22ch}
 .home-hero p{margin-top:12px; font-size:14px; color:var(--ink-soft); max-width:60ch; line-height:1.6}
@@ -237,6 +247,13 @@ main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh}
           <div class="eyebrow">Autoteam · Hub Strumenti</div>
           <h1>Tutti gli strumenti della suite, in un unico file.</h1>
           <p>Scegli un simulatore dal menu o da questa pagina per aprirlo. Ogni strumento resta indipendente: puoi tornare qui in qualsiasi momento con il pulsante Home.</p>
+        </div>
+        <div class="quote-card" id="quoteCard">
+          <div class="quote-scene" id="quoteScene"></div>
+          <div class="quote-body">
+            <div class="quote-kicker"><span class="dot"></span>Frase del giorno &middot; Team Vendita</div>
+            <p class="quote-text" id="quoteText"></p>
+          </div>
         </div>
         <div id="homeSections"></div>
       </div>
@@ -466,9 +483,166 @@ function buildHomeSections(){
   container.innerHTML = html;
 }
 
+var QUOTE_OF_DAY_LIST = [
+  "Non vendi un'auto: vendi la tranquillit\u00e0 di scegliere bene.",
+  "Ogni obiezione \u00e8 una domanda che merita una risposta onesta.",
+  "Il cliente non ricorda il prezzo che gli hai detto, ricorda come l'hai fatto sentire.",
+  "La fiducia si costruisce una domanda alla volta.",
+  "Chi ascolta di pi\u00f9, vende meglio.",
+  "Un buon venditore non convince: aiuta a decidere.",
+  "Il primo 'no' non \u00e8 mai l'ultima parola.",
+  "La preparazione \u00e8 la parte invisibile del successo.",
+  "Ogni cliente porta con s\u00e9 una storia: scoprila prima di parlare di numeri.",
+  "Le obiezioni non si respingono, si capiscono.",
+  "Il sorriso \u00e8 il primo strumento di vendita, ancora prima delle parole.",
+  "Chi semina fiducia oggi, raccoglie fedelt\u00e0 domani.",
+  "Non correre verso la firma: cammina verso la comprensione.",
+  "Un cliente soddisfatto \u00e8 la miglior pubblicit\u00e0 che esista.",
+  "La costanza batte il talento quando il talento non \u00e8 costante.",
+  "Vendere bene significa spiegare meglio, non parlare di pi\u00f9.",
+  "Ogni giorno \u00e8 un'occasione per migliorare di un piccolo passo.",
+  "Il dettaglio che curi oggi \u00e8 il ricordo che il cliente porta a casa.",
+  "Le grandi vendite iniziano da piccole attenzioni.",
+  "Non vendere ci\u00f2 che hai: capisci ci\u00f2 che serve.",
+  "La pazienza \u00e8 la strategia pi\u00f9 sottovalutata nella vendita.",
+  "Un cliente che si sente capito, torna.",
+  "Il tempo che dedichi ad ascoltare \u00e8 tempo investito, mai perso.",
+  "La chiarezza vale pi\u00f9 di mille argomentazioni.",
+  "Chi si prepara con cura, non teme le domande difficili.",
+  "Il valore si dimostra, non si dichiara.",
+  "Ogni trattativa \u00e8 una conversazione, non una gara.",
+  "La miglior vendita \u00e8 quella che il cliente racconta agli amici.",
+  "Rispondi con i fatti, convinci con l'onest\u00e0.",
+  "Il team che cresce insieme, vende meglio insieme.",
+  "Le sfide di oggi allenano i risultati di domani.",
+  "Un buon consiglio vale pi\u00f9 di uno sconto.",
+  "Chi conosce il prodotto conosce anche come raccontarlo.",
+  "Il cliente non compera un'auto: compera una soluzione.",
+  "La calma, nelle trattative difficili, \u00e8 un vantaggio competitivo.",
+  "Ogni 'forse' \u00e8 un'opportunit\u00e0 di fare una domanda in pi\u00f9.",
+  "Il rispetto per il tempo del cliente si trasforma in rispetto per il tuo lavoro.",
+  "Le relazioni durature valgono pi\u00f9 delle vendite veloci.",
+  "Un passo alla volta si arriva pi\u00f9 lontano di un salto affrettato.",
+  "Il miglior venditore del team \u00e8 quello che fa crescere anche gli altri."
+];
+
+function quoteScene(i){
+  var W = 260, H = 400;
+  var defs = '<defs><linearGradient id="qg' + i + '" x1="0" y1="0" x2="0" y2="1">';
+  var scenes = [
+    // 0 Alba sul rettilineo
+    function(){
+      return '<stop offset="0%" stop-color="#f2b544"/><stop offset="55%" stop-color="#7c5cd6"/><stop offset="100%" stop-color="#0a111d"/></linearGradient></defs>'
+        + '<rect width="' + W + '" height="' + H + '" fill="url(#qg' + i + ')"/>'
+        + '<circle cx="130" cy="150" r="46" fill="#ffe3a3" opacity=".9"/>'
+        + '<path d="M0 300 L260 300 L260 400 L0 400 Z" fill="#0d1420"/>'
+        + '<path d="M0 300 Q130 260 260 300 L260 340 Q130 300 0 340 Z" fill="#141d2e"/>'
+        + '<path d="M118 400 L108 300 L152 300 L142 400 Z" fill="#1b2537"/>'
+        + '<rect x="126" y="310" width="8" height="16" fill="#f2b544" opacity=".8"/>'
+        + '<rect x="126" y="342" width="8" height="16" fill="#f2b544" opacity=".8"/>'
+        + '<rect x="126" y="374" width="8" height="16" fill="#f2b544" opacity=".8"/>';
+    },
+    // 1 Vetta con bandiera
+    function(){
+      return '<stop offset="0%" stop-color="#2dd4bf"/><stop offset="60%" stop-color="#123055"/><stop offset="100%" stop-color="#0a111d"/></linearGradient></defs>'
+        + '<rect width="' + W + '" height="' + H + '" fill="url(#qg' + i + ')"/>'
+        + '<circle cx="70" cy="90" r="30" fill="#eaf6ff" opacity=".85"/>'
+        + '<path d="M-10 320 L100 150 L150 220 L190 170 L280 320 Z" fill="#16324f"/>'
+        + '<path d="M-10 320 L60 190 L120 320 Z" fill="#1c3d61"/>'
+        + '<path d="M80 175 L100 150 L120 178 L108 172 L100 160 L92 172 Z" fill="#fff"/>'
+        + '<path d="M100 150 L100 118" stroke="#cbd6e6" stroke-width="3"/>'
+        + '<path d="M100 118 L134 128 L100 138 Z" fill="#f2b544"/>';
+    },
+    // 2 Bussola
+    function(){
+      return '<stop offset="0%" stop-color="#1e3253"/><stop offset="100%" stop-color="#070b12"/></linearGradient></defs>'
+        + '<rect width="' + W + '" height="' + H + '" fill="url(#qg' + i + ')"/>'
+        + '<circle cx="130" cy="200" r="92" fill="none" stroke="#3a5680" stroke-width="2"/>'
+        + '<circle cx="130" cy="200" r="70" fill="#132038" stroke="#2dd4bf" stroke-width="2"/>'
+        + '<g stroke="#5c78a3" stroke-width="1.6">'
+        + '<line x1="130" y1="118" x2="130" y2="132"/><line x1="130" y1="268" x2="130" y2="282"/>'
+        + '<line x1="48" y1="200" x2="62" y2="200"/><line x1="198" y1="200" x2="212" y2="200"/></g>'
+        + '<path d="M130 155 L145 200 L130 245 L115 200 Z" fill="#f2b544"/>'
+        + '<circle cx="130" cy="200" r="7" fill="#eef3fb"/>'
+        + '<text x="130" y="108" text-anchor="middle" fill="#9fb0c9" font-family="IBM Plex Mono, monospace" font-size="12">N</text>';
+    },
+    // 3 Crescita
+    function(){
+      return '<stop offset="0%" stop-color="#a78bfa"/><stop offset="60%" stop-color="#1c2947"/><stop offset="100%" stop-color="#0a111d"/></linearGradient></defs>'
+        + '<rect width="' + W + '" height="' + H + '" fill="url(#qg' + i + ')"/>'
+        + '<g fill="#eef3fb" opacity=".8"><circle cx="46" cy="80" r="2.4"/><circle cx="200" cy="60" r="1.8"/><circle cx="220" cy="120" r="2.2"/><circle cx="70" cy="130" r="1.6"/></g>'
+        + '<g fill="#34d399" opacity=".92">'
+        + '<rect x="40" y="300" width="26" height="70"/><rect x="82" y="270" width="26" height="100"/>'
+        + '<rect x="124" y="230" width="26" height="140"/><rect x="166" y="185" width="26" height="185"/></g>'
+        + '<path d="M50 260 L95 220 L140 240 L205 150" fill="none" stroke="#f2b544" stroke-width="4" stroke-linecap="round"/>'
+        + '<path d="M185 150 L205 150 L205 170" fill="none" stroke="#f2b544" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
+    },
+    // 4 Stretta di mano
+    function(){
+      return '<stop offset="0%" stop-color="#7cf7b0"/><stop offset="55%" stop-color="#123a37"/><stop offset="100%" stop-color="#0a111d"/></linearGradient></defs>'
+        + '<rect width="' + W + '" height="' + H + '" fill="url(#qg' + i + ')"/>'
+        + '<circle cx="130" cy="190" r="86" fill="none" stroke="#2dd4bf" stroke-width="1.4" opacity=".5"/>'
+        + '<circle cx="130" cy="190" r="108" fill="none" stroke="#2dd4bf" stroke-width="1.2" opacity=".3"/>'
+        + '<path d="M60 200 L98 178 L118 190 L100 200 L128 214 L150 196 L170 208 L200 188" fill="none" stroke="#eef3fb" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>'
+        + '<circle cx="60" cy="200" r="9" fill="#f2b544"/><circle cx="200" cy="188" r="9" fill="#2dd4bf"/>';
+    },
+    // 5 Traguardo
+    function(){
+      return '<stop offset="0%" stop-color="#ff8fc0"/><stop offset="55%" stop-color="#3a1f38"/><stop offset="100%" stop-color="#0a111d"/></linearGradient></defs>'
+        + '<rect width="' + W + '" height="' + H + '" fill="url(#qg' + i + ')"/>'
+        + '<rect x="98" y="130" width="8" height="240" fill="#cbd6e6"/>'
+        + '<g>'
+        + '<rect x="106" y="132" width="14" height="14" fill="#eef3fb"/><rect x="120" y="132" width="14" height="14" fill="#1c2536"/>'
+        + '<rect x="106" y="146" width="14" height="14" fill="#1c2536"/><rect x="120" y="146" width="14" height="14" fill="#eef3fb"/>'
+        + '<rect x="106" y="160" width="14" height="14" fill="#eef3fb"/><rect x="120" y="160" width="14" height="14" fill="#1c2536"/>'
+        + '</g>'
+        + '<g fill="#f2b544" opacity=".85"><circle cx="40" cy="250" r="4"/><circle cx="210" cy="230" r="3"/><circle cx="180" cy="300" r="3.4"/><circle cx="60" cy="320" r="2.6"/></g>';
+    },
+    // 6 Faro
+    function(){
+      return '<stop offset="0%" stop-color="#f2b544"/><stop offset="45%" stop-color="#3a2f5c"/><stop offset="100%" stop-color="#0a111d"/></linearGradient></defs>'
+        + '<rect width="' + W + '" height="' + H + '" fill="url(#qg' + i + ')"/>'
+        + '<path d="M-20 320 Q40 300 130 320 T280 315 L280 400 L-20 400 Z" fill="#0d1a2c"/>'
+        + '<path d="M116 200 L130 130 L144 200 Z" fill="#e7ecf5"/>'
+        + '<rect x="122" y="150" width="16" height="50" fill="#f87171"/>'
+        + '<rect x="112" y="200" width="36" height="90" fill="#cbd6e6"/>'
+        + '<rect x="118" y="215" width="24" height="16" fill="#f2b544" opacity=".9"/>'
+        + '<path d="M138 220 L200 190" stroke="#ffe3a3" stroke-width="4" opacity=".55" stroke-linecap="round"/>'
+        + '<path d="M138 224 L205 224" stroke="#ffe3a3" stroke-width="4" opacity=".4" stroke-linecap="round"/>';
+    },
+    // 7 Bersaglio
+    function(){
+      return '<stop offset="0%" stop-color="#34d399"/><stop offset="55%" stop-color="#123024"/><stop offset="100%" stop-color="#0a111d"/></linearGradient></defs>'
+        + '<rect width="' + W + '" height="' + H + '" fill="url(#qg' + i + ')"/>'
+        + '<circle cx="140" cy="200" r="86" fill="none" stroke="#eef3fb" stroke-width="10" opacity=".9"/>'
+        + '<circle cx="140" cy="200" r="58" fill="none" stroke="#f2b544" stroke-width="10"/>'
+        + '<circle cx="140" cy="200" r="30" fill="none" stroke="#f87171" stroke-width="10"/>'
+        + '<circle cx="140" cy="200" r="7" fill="#eef3fb"/>'
+        + '<path d="M30 90 L142 196" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round"/>'
+        + '<path d="M30 90 L58 88 L32 116 Z" fill="#2dd4bf"/>';
+    }
+  ];
+  return defs + scenes[i % scenes.length]();
+}
+
+function renderQuoteOfDay(){
+  var textEl = document.getElementById("quoteText");
+  var sceneEl = document.getElementById("quoteScene");
+  if(!textEl || !sceneEl) return;
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var diff = now - start;
+  var dayOfYear = Math.floor(diff / 86400000);
+  var qi = dayOfYear % QUOTE_OF_DAY_LIST.length;
+  var si = dayOfYear % 8;
+  textEl.textContent = QUOTE_OF_DAY_LIST[qi];
+  sceneEl.innerHTML = '<svg viewBox="0 0 260 400" preserveAspectRatio="xMidYMid slice">' + quoteScene(si) + '</svg>';
+}
+
 function renderAll(){
   buildSidebarNav();
   buildHomeSections();
+  renderQuoteOfDay();
 }
 
 function updateTopbar(key){
