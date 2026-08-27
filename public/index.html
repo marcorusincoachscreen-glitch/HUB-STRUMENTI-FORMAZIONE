@@ -89,6 +89,7 @@ p{margin:0}
 .navgroup-title.cat-green{color:var(--green)}
 .navgroup-title.cat-rose{color:var(--rose)}
 .navgroup-title.cat-mint{color:var(--mint)}
+.navgroup-title.cat-coral{color:#ff8a65}
 .navgroup-body{display:grid; grid-template-rows:1fr; transition:grid-template-rows .25s ease; overflow:hidden}
 .navgroup.collapsed .navgroup-body{grid-template-rows:0fr}
 .navgroup-body-inner{min-height:0; overflow:hidden}
@@ -182,6 +183,7 @@ main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh}
 .cat-green{background:var(--green-glow); color:var(--green)}
 .cat-rose{background:var(--rose-glow); color:var(--rose)}
 .cat-mint{background:var(--mint-glow); color:var(--mint)}
+.cat-coral{background:rgba(255,138,101,.14); color:#ff8a65}
 
 /* ---------------- Drag & drop reordering ---------------- */
 .navlist button.navlink{cursor:pointer}
@@ -353,7 +355,7 @@ var ICONS = {
 };
 
 var TOOLS_META = {
-  torta_costo_guida: { title:"La Torta del Costo di Guida", sub:"Il prezzo di acquisto è solo una fetta: cosa c'è davvero dentro il costo di guida", icon:"pie", badge:"Novità" },
+  torta_costo_guida: { title:"La Torta del Costo di Guida", sub:"Il prezzo di acquisto è solo una fetta: cosa c'è davvero dentro il costo di guida", icon:"pie" },
   brochure_eb_light: { title:"Easy Buy Light — Opuscolo Cliente", sub:"Brochure cliente Easy Buy Light — versione opuscolo", icon:"note" },
   brochure_eb_light1: { title:"Easy Buy Light — Soluzione Cliente", sub:"Brochure cliente Easy Buy Light — versione soluzione", icon:"note" },
   brochure_eb_light2: { title:"Easy Buy Light — Brochure Cliente", sub:"Brochure cliente Easy Buy Light — versione brochure", icon:"note" },
@@ -369,15 +371,16 @@ var TOOLS_META = {
   effetto_forbice_autonoma: { title:"L'Effetto Forbice", sub:"Il grafico, il paradosso e come tagliare la forbice — in una pagina", icon:"scissors" },
   prezzo_costo_cliente: { title:"Prezzo vs Costo — Lettera per il Cliente", sub:"Lettera stampabile pronta da consegnare al cliente", icon:"note" },
   interessi_inflazione: { title:"Interessi e Inflazione", sub:"Contanti, mutuo o investimento: il confronto su 10 anni", icon:"percent" },
-  easy_buy_guida_unica: { title:"Easy Buy — Guida Completa", sub:"Tutto Easy Buy in un solo documento: metodo, script, obiezioni e vantaggi", icon:"compass" },
+  easy_buy_guida_unica: { title:"Easy Buy — Guida Completa", sub:"Tutto Easy Buy in un solo documento: metodo, script, obiezioni e vantaggi", icon:"compass", badge:"Guida Principale" },
   tutela_sereno_green: { title:"Nobis — Tutela Sereno Green", sub:"Opuscolo cliente: le 30 garanzie della polizza auto Nobis", icon:"shield" },
   altre_tutele_importanti: { title:"Nobis — Altre Tutele Importanti", sub:"Opuscolo cliente: Gold Cover, Gold Kasko, Golden Green Protection", icon:"shield" }
 };
 
 var DEFAULT_GROUPS = [
-  { key:"pillole_stampabili", label:"Pillole Stampabili", cls:"cat-mint", tools:["torta_costo_guida","effetto_forbice_autonoma"] },
+  { key:"pillole_stampabili", label:"Pillole Stampabili", cls:"cat-mint", tools:["torta_costo_guida","effetto_forbice_autonoma","prezzo_costo_cliente"] },
+  { key:"easy_buy_light", label:"Easy Buy Light", cls:"cat-coral", tools:["brochure_eb_light","brochure_eb_light1","brochure_eb_light2"] },
   { key:"operativita", label:"Appunti veloci sui Clienti", cls:"cat-rose", tools:["post_it"] },
-  { key:"formazione", label:"Formazione", cls:"cat-green", tools:["tutela_sereno_green","altre_tutele_importanti","brochure_eb_light","brochure_eb_light1","brochure_eb_light2","prezzo_costo_cliente","easy_buy_guida_unica"] },
+  { key:"formazione", label:"Formazione", cls:"cat-green", tools:["tutela_sereno_green","altre_tutele_importanti","easy_buy_guida_unica"] },
   { key:"forbici", label:"Forbici", cls:"cat-amber", tools:["forbice_easy","forbice_huge"] },
   { key:"possesso_tco_acquisto", label:"Costo di possesso, TCO e sistemi di acquisto", cls:"cat-teal", tools:["costo_possesso","confronto_acquisto","tasso_commerciale","confronto_tco"] },
   { key:"fiscale_finanziario", label:"Calcolatore fiscale e finanziario", cls:"cat-purple", tools:["calc_fiscale","estinzione","interessi_inflazione"] }
@@ -451,10 +454,7 @@ function findToolGroup(toolKey){
 }
 
 var SUBGROUP_OF = {
-  tutela_sereno_green:"NOBIS", altre_tutele_importanti:"NOBIS",
-  easy_buy_guida_unica:"Easy Buy", brochure_eb_light:"Easy Buy",
-  brochure_eb_light1:"Easy Buy", brochure_eb_light2:"Easy Buy",
-  prezzo_costo_cliente:"Easy Buy"
+  tutela_sereno_green:"NOBIS", altre_tutele_importanti:"NOBIS"
 };
 function subgroupCls(sub){ return sub === "NOBIS" ? "sub-nobis" : "sub-eb"; }
 
@@ -529,7 +529,7 @@ function buildHomeSections(){
         html += '<div class="subgroup-heading ' + subgroupCls(sub) + '">' + sub + '</div>';
       }
       lastSub = sub || null;
-      html += '<button class="tool-card" data-key="' + key + '">' + (t.badge ? '<span class="new-badge">✨ ' + t.badge + '</span>' : '') + '<span class="grip" draggable="true">' + ICONS.grip + '</span><span class="ic ' + g.cls + '">' + ICONS[t.icon] + '</span><h3>' + t.title + '</h3><p>' + t.sub + '</p></button>';
+      html += '<button class="tool-card" data-key="' + key + '">' + (t.badge ? '<span class="new-badge">' + t.badge + '</span>' : '') + '<span class="grip" draggable="true">' + ICONS.grip + '</span><span class="ic ' + g.cls + '">' + ICONS[t.icon] + '</span><h3>' + t.title + '</h3><p>' + t.sub + '</p></button>';
     });
     html += '</div></div>';
   });
