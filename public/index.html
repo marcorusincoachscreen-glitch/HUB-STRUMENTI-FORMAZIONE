@@ -212,10 +212,11 @@ main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh}
 }
 
 /* --- Feedback widget --- */
-.fb-fab{position:fixed; right:26px; bottom:26px; z-index:60; display:flex; align-items:center; gap:9px; background:var(--panel-2); color:var(--ink); border:1px solid var(--border-strong); border-radius:999px; padding:13px 20px 13px 16px; font-family:'Plus Jakarta Sans',sans-serif; font-size:13.5px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-lg); transition:transform .15s ease, border-color .15s ease, background .15s ease;}
-.fb-fab:hover{transform:translateY(-2px); border-color:var(--amber); background:var(--panel-3)}
-.fb-fab svg{width:18px; height:18px; color:var(--amber); flex-shrink:0}
-@media (max-width:640px){ .fb-fab{ right:16px; bottom:16px; padding:12px 16px 12px 14px; font-size:12.5px } .fb-fab .fb-fab-label{ display:none } }
+@keyframes fbPulseGlow{ 0%,100%{ box-shadow:0 10px 34px -10px rgba(45,212,191,.55), 0 0 0 0 rgba(45,212,191,.35);} 50%{ box-shadow:0 10px 34px -10px rgba(45,212,191,.75), 0 0 0 9px rgba(45,212,191,0);} }
+.fb-fab{position:fixed; right:26px; bottom:26px; z-index:60; display:flex; align-items:center; gap:10px; background:linear-gradient(135deg, var(--accent), var(--accent-deep)); color:#04211d; border:none; border-radius:999px; padding:15px 24px 15px 18px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14.5px; font-weight:800; letter-spacing:.01em; cursor:pointer; box-shadow:0 10px 34px -10px rgba(45,212,191,.55); transition:transform .15s ease, box-shadow .15s ease; animation:fbPulseGlow 2.6s ease-in-out infinite; max-width:min(78vw,420px); text-align:left; line-height:1.2;}
+.fb-fab:hover{transform:translateY(-3px) scale(1.02); animation-play-state:paused; box-shadow:0 16px 40px -10px rgba(45,212,191,.7)}
+.fb-fab svg{width:21px; height:21px; color:#04211d; flex-shrink:0}
+@media (max-width:640px){ .fb-fab{ right:16px; bottom:16px; padding:13px 18px 13px 15px; font-size:12.5px; border-radius:18px; max-width:min(84vw,320px) } .fb-fab .fb-fab-label{ white-space:normal } }
 
 .fb-overlay{position:fixed; inset:0; z-index:70; background:rgba(4,8,16,.62); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; padding:20px}
 .fb-overlay.show{display:flex}
@@ -328,7 +329,7 @@ main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh}
     </div>
   </main>
 
-  <button class="fb-fab" id="fbFab" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17.3 6.2 20l1.1-6.5L2.5 9l6.5-1L12 2l3 6 6.5 1-4.8 4.5 1.1 6.5z"/></svg><span class="fb-fab-label">La tua opinione</span></button>
+  <button class="fb-fab" id="fbFab" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.3 6.2 20l1.1-6.5L2.5 9l6.5-1L12 2l3 6 6.5 1-4.8 4.5 1.1 6.5z"/></svg><span class="fb-fab-label">La tua opinione e i tuoi suggerimenti contano</span></button>
 
   <div class="fb-overlay" id="fbOverlay">
     <div class="fb-modal">
