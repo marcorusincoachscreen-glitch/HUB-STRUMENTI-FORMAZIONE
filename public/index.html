@@ -43,20 +43,64 @@ p{margin:0}
 ::-webkit-scrollbar-thumb{background:var(--panel-3); border-radius:8px}
 
 /* ---------------- Gate ---------------- */
-.gate{position:fixed; inset:0; z-index:9999; background:var(--bg); display:flex; align-items:center; justify-content:center; padding:24px}
+.gate{
+  position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:24px;
+  overflow:hidden;
+  background:
+    radial-gradient(1200px 720px at 12% -8%, rgba(45,212,191,.20), transparent 58%),
+    radial-gradient(1000px 680px at 105% 8%, rgba(124,247,176,.15), transparent 56%),
+    radial-gradient(900px 620px at 50% 118%, rgba(242,181,68,.13), transparent 55%),
+    var(--bg);
+}
 .gate.unlocked{display:none}
-.gate-card{width:100%; max-width:380px; background:var(--panel); border:1px solid var(--border-strong); border-radius:var(--radius); padding:36px 32px; box-shadow:var(--shadow-lg); text-align:center}
+.gate::before,.gate::after{
+  content:""; position:absolute; border-radius:50%; filter:blur(70px); pointer-events:none; z-index:0;
+}
+.gate::before{
+  width:440px; height:440px; top:-160px; left:-140px;
+  background:radial-gradient(circle, rgba(45,212,191,.38), transparent 70%);
+  animation:gateDriftA 15s ease-in-out infinite;
+}
+.gate::after{
+  width:400px; height:400px; bottom:-170px; right:-120px;
+  background:radial-gradient(circle, rgba(167,139,250,.32), transparent 70%);
+  animation:gateDriftB 18s ease-in-out infinite;
+}
+@keyframes gateDriftA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(46px,32px) scale(1.1)}}
+@keyframes gateDriftB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-36px,-28px) scale(1.06)}}
+@keyframes gateCardIn{0%{opacity:0; transform:translateY(18px) scale(.98)}100%{opacity:1; transform:translateY(0) scale(1)}}
+.gate-card{
+  position:relative; z-index:1;
+  width:100%; max-width:380px; background:var(--panel); border:1px solid var(--border-strong); border-radius:var(--radius); padding:36px 32px; box-shadow:var(--shadow-lg); text-align:center;
+  animation:gateCardIn .6s cubic-bezier(.16,1,.3,1) both;
+}
 .gate-hero{margin:-36px -32px 22px; height:136px; border-radius:var(--radius) var(--radius) 0 0; overflow:hidden; position:relative}
 .gate-hero svg{display:block; width:100%; height:100%}
+.gh-star{animation:ghTwinkle 3.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center}
+.gh-star:nth-child(2){animation-delay:.5s}
+.gh-star:nth-child(3){animation-delay:1s}
+.gh-star:nth-child(4){animation-delay:1.5s}
+.gh-star:nth-child(5){animation-delay:2s}
+@keyframes ghTwinkle{0%,100%{opacity:.3}50%{opacity:1}}
+.gh-sun{animation:ghSunPulse 4.5s ease-in-out infinite; transform-box:fill-box; transform-origin:center}
+@keyframes ghSunPulse{0%,100%{opacity:.92; transform:scale(1)}50%{opacity:1; transform:scale(1.06)}}
+.gh-car-float{animation:ghFloat 5s ease-in-out infinite; transform-box:fill-box; transform-origin:center}
+@keyframes ghFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.6px)}}
+.gh-spark{animation:ghSparkle 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center}
+.gh-spark:nth-child(2){animation-delay:.5s}
+.gh-spark:nth-child(3){animation-delay:1s}
+@keyframes ghSparkle{0%,100%{opacity:.9; transform:scale(1)}35%{opacity:.25; transform:scale(.55)}65%{opacity:1; transform:scale(1.2)}}
 .gate-eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:18px}
 .gate-eyebrow svg{width:24px; height:10px}
 .gate-card h2{font-size:20px; color:var(--ink); margin-bottom:10px}
 .gate-card p{font-size:13px; color:var(--ink-faint); line-height:1.55; margin-bottom:24px}
 #gateForm{display:flex; flex-direction:column; gap:12px}
-#gatePwd{width:100%; padding:13px 14px; border-radius:var(--radius-sm); border:1.4px solid var(--border-strong); background:var(--panel-2); color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:14px; text-align:center}
+#gatePwd{width:100%; padding:13px 14px; border-radius:var(--radius-sm); border:1.4px solid var(--border-strong); background:var(--panel-2); color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:14px; text-align:center; transition:border-color .15s ease, box-shadow .15s ease}
 #gatePwd:focus{outline:0; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow)}
-#gateForm button{padding:13px 14px; border-radius:var(--radius-sm); border:none; background:var(--accent); color:#04211d; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px; cursor:pointer; transition:filter .15s ease}
-#gateForm button:hover{filter:brightness(1.08)}
+@keyframes gateBtnGlow{0%,100%{box-shadow:0 0 0 0 var(--accent-glow), var(--shadow-sm)}50%{box-shadow:0 0 0 8px rgba(45,212,191,0), var(--shadow-sm)}}
+#gateForm button{padding:13px 14px; border-radius:var(--radius-sm); border:none; background:linear-gradient(135deg, var(--accent), var(--mint-deep)); color:#04211d; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px; cursor:pointer; transition:filter .15s ease, transform .15s ease; animation:gateBtnGlow 2.6s ease-in-out infinite}
+#gateForm button:hover{filter:brightness(1.08); transform:translateY(-1px)}
+#gateForm button:active{transform:translateY(0)}
 .gate-error{display:none; margin-top:15px; font-size:12.5px; color:var(--danger)}
 .gate-error.show{display:block}
 .gate-foot{margin-top:20px; font-size:11px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace}
@@ -284,20 +328,23 @@ main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh}
         <rect width="400" height="150" fill="url(#ghSky)"/>
 
         <!-- stelle serenità -->
-        <circle cx="34" cy="24" r="1.6" fill="#eef3fb" opacity="0.75"/>
-        <circle cx="70" cy="46" r="1.2" fill="#eef3fb" opacity="0.6"/>
-        <circle cx="120" cy="20" r="1.4" fill="#eef3fb" opacity="0.65"/>
-        <circle cx="18" cy="60" r="1.1" fill="#eef3fb" opacity="0.55"/>
-        <circle cx="170" cy="38" r="1.3" fill="#eef3fb" opacity="0.6"/>
+        <circle class="gh-star" cx="34" cy="24" r="1.6" fill="#eef3fb" opacity="0.75"/>
+        <circle class="gh-star" cx="70" cy="46" r="1.2" fill="#eef3fb" opacity="0.6"/>
+        <circle class="gh-star" cx="120" cy="20" r="1.4" fill="#eef3fb" opacity="0.65"/>
+        <circle class="gh-star" cx="18" cy="60" r="1.1" fill="#eef3fb" opacity="0.55"/>
+        <circle class="gh-star" cx="170" cy="38" r="1.3" fill="#eef3fb" opacity="0.6"/>
 
         <!-- sole che sorge -->
-        <circle cx="322" cy="96" r="46" fill="url(#ghSun)"/>
-        <circle cx="322" cy="96" r="19" fill="#ffe7ad"/>
+        <g class="gh-sun">
+          <circle cx="322" cy="96" r="46" fill="url(#ghSun)"/>
+          <circle cx="322" cy="96" r="19" fill="#ffe7ad"/>
+        </g>
 
         <!-- terreno -->
         <path d="M0,124 C90,112 310,112 400,124 L400,150 L0,150 Z" fill="url(#ghGround)"/>
 
-        <!-- auto -->
+        <!-- auto, clienti e scintille: scena galleggiante -->
+        <g class="gh-car-float">
         <g>
           <ellipse cx="142" cy="135" rx="112" ry="6.5" fill="#000" opacity="0.2"/>
 
@@ -362,9 +409,10 @@ main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh}
 
         <!-- scintille di gioia -->
         <g fill="#ffe7ad">
-          <path d="M312,74 L314,80 L320,82 L314,84 L312,90 L310,84 L304,82 L310,80 Z" opacity="0.9"/>
-          <path d="M362,88 L363.4,91.6 L367,93 L363.4,94.4 L362,98 L360.6,94.4 L357,93 L360.6,91.6 Z" opacity="0.8"/>
-          <path d="M278,90 L279.2,93 L282,94.2 L279.2,95.4 L278,98.4 L276.8,95.4 L274,94.2 L276.8,93 Z" opacity="0.75"/>
+          <path class="gh-spark" d="M312,74 L314,80 L320,82 L314,84 L312,90 L310,84 L304,82 L310,80 Z" opacity="0.9"/>
+          <path class="gh-spark" d="M362,88 L363.4,91.6 L367,93 L363.4,94.4 L362,98 L360.6,94.4 L357,93 L360.6,91.6 Z" opacity="0.8"/>
+          <path class="gh-spark" d="M278,90 L279.2,93 L282,94.2 L279.2,95.4 L278,98.4 L276.8,95.4 L274,94.2 L276.8,93 Z" opacity="0.75"/>
+        </g>
         </g>
       </svg>
     </div>
@@ -572,14 +620,14 @@ var TOOLS_META = {
 };
 
 var DEFAULT_GROUPS = [
-  { key:"pillole_stampabili", label:"Pillole Stampabili", cls:"cat-mint", tools:["torta_costo_guida","effetto_forbice_autonoma","esempio_pratico_4x3","prezzo_costo_cliente"] },
-  { key:"easy_buy_light", label:"Easy Buy Light", cls:"cat-coral", tools:["brochure_eb_light","brochure_eb_light1","brochure_eb_light2"] },
+  { key:"pillole_stampabili", label:"Pillole Stampabili", cls:"cat-mint", tools:["prezzo_costo_cliente","torta_costo_guida","effetto_forbice_autonoma","esempio_pratico_4x3"] },
   { key:"operativita", label:"Appunti veloci sui Clienti", cls:"cat-rose", tools:["post_it"] },
   { key:"formazione", label:"Formazione", cls:"cat-green", tools:["tutela_sereno_green","altre_tutele_importanti","easy_buy_guida_unica"] },
   { key:"forbici", label:"Forbici", cls:"cat-amber", tools:["forbice_easy","forbice_huge"] },
   { key:"possesso_tco_acquisto", label:"Costo di possesso, TCO e sistemi di acquisto", cls:"cat-teal", tools:["costo_possesso","tasso_commerciale","confronto_acquisto","confronto_tco"] },
   { key:"costi_reali_aci", label:"Costo di Possesso TABELLE ACI", cls:"cat-blue", tools:["costi_reali_aci"] },
-  { key:"fiscale_finanziario", label:"Calcolatore fiscale e finanziario", cls:"cat-purple", tools:["calc_fiscale","estinzione","interessi_inflazione"] }
+  { key:"fiscale_finanziario", label:"Calcolatore fiscale e finanziario", cls:"cat-purple", tools:["calc_fiscale","estinzione","interessi_inflazione"] },
+  { key:"easy_buy_light", label:"Easy Buy Light", cls:"cat-coral", tools:["brochure_eb_light","brochure_eb_light1","brochure_eb_light2"] }
 ];
 
 var TOOLS_B64 = {
